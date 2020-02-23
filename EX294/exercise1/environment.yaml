@@ -7,14 +7,18 @@ servers:
     - name: server1
       hostname: server1.lab.com
       cpus: 2
-      ip: 192.168.56.100
-      forward:
-          - guest: 80
-            host: 8080
+      ip: 192.168.56.101
+      #forward:
+      #    - guest: 80
+      #      host: 8080
+    - name: server2
+      hostname: server2.lab.com
+      memory: 1024
+      ip: 192.168.56.102
     - name: ansible
       hostname: ansible.lab.com
       memory: 1024
-      ip: 192.168.56.101
+      ip: 192.168.56.100
       ansible:
           playbook: playbook.yml
           inventory: inventory
