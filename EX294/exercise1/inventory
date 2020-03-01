@@ -1,5 +1,5 @@
-[weberver]
-server1 ansible_ssh_private_key_file=/vagrant/.vagrant/machines/server1/virtualbox/private_key
-
 [ftpserver]
-server2 ansible_ssh_private_key_file=/vagrant/.vagrant/machines/server2/virtualbox/private_key
+server1.lab.com ansible_ssh_private_key_file=/vagrant/.vagrant/machines/server1/virtualbox/private_key
+
+[weberver]
+server2.lab.com ansible_ssh_private_key_file=/vagrant/.vagrant/machines/server2/virtualbox/private_key

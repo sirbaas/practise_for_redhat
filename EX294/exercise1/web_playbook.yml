@@ -1,5 +1,7 @@
 - name: Ping all the things!
-  hosts: all
+  #For server2
+  hosts: weberver
+  connection: local 
   tasks:
       - ping:
 

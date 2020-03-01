@@ -1,0 +1,62 @@
+- name: Ping all the things!
+  #For server1
+  hosts: ftpserver
+  connection: local 
+  tasks:
+      - ping:
+
+- name: Setup FTP-server
+  hosts: ftpserver
+  connection: local 
+  become: yes
+  tasks:
+    - name: Install vsftpd
+      yum: 
+        name: "{{ packages }}"
+      vars:
+        packages:
+          - vsftpd
+          - nfs-utils
+    - name: Enable service in firewalld
+      firewalld:
+        port: 21/tcp
+        permanent: yes
+        state: enabled
+    - name: Enable service in firewalld
+      firewalld:
+        service: ftp
+        permanent: yes
+        state: enabled
+    - name: Relead firewalld
+      command: firewall-cmd --reload
+      register: output
+    - name: Make sure selinux is correct
+      command: setsebool -P tftp_home_dir on
+    - name: Make sure a service is running
+      systemd:
+        state: started
+        enabled: yes
+        name: vsftpd
+    - name: Make sure a service is running
+      systemd:
+        state: started
+        enabled: yes
+        name: nfs-server
+
+    - name: Create FTP group 
+      group:
+        name: ftpgroup
+        state: present
+    - name: Create FTP user
+      user:
+        name: ftpuser
+        password: ftpuser
+        shell: /bin/bash
+        group: ftpgroup
+        #home: /data/ftp/$USER
+        append: yes
+        update_password: always
+
+
+        
+    - name: Create FTP user
