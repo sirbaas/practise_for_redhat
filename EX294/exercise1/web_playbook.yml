@@ -5,4 +5,50 @@
   tasks:
       - ping:
 
+- name: Setup WEB-server
+  hosts: weberver
+  connection: local 
+  become: yes
+  tasks:
+    - name: Install vsftpd
+      yum: 
+        name: "{{ packages }}"
+      vars:
+        packages:
+          - httpd 
+          - nfs-utils
+    - name: Enable service in firewalld
+      firewalld:
+        port: 80/tcp
+        permanent: yes
+        state: enabled
+    - name: Enable service in firewalld
+      firewalld:
+        port: 443/tcp
+        permanent: yes
+        state: enabled
+    - name: Relead firewalld
+      command: firewall-cmd --reload
+      register: output
+    - name: Make sure a service is running
+      systemd:
+        state: started
+        enabled: yes
+        name: httpd
+    - name: Make sure a service is running
+      systemd:
+        state: started
+        enabled: yes
+        name: httpd
 
+    - name: Ensure data folder is present
+      file:
+        path: /data/webpage
+        state: directory
+    - name: Mount ftp mount
+      mount: 
+        path: /data/nfsshare
+        src: 192.168.56.102:/data/nfsshare
+        fstype: nfs
+        opts: nfsvers=3
+        state: present

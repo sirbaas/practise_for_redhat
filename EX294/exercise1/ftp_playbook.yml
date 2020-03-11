@@ -10,8 +10,9 @@
   connection: local 
   become: yes
   tasks:
-    - name: Install vsftpd
-      yum: 
+    - name: "Install {{ packages }}"
+      yum:
+        state: present 
         name: "{{ packages }}"
       vars:
         packages:
@@ -42,7 +43,38 @@
         state: started
         enabled: yes
         name: nfs-server
+    - name: Enable NFS service in firewalld
+      firewalld:
+        port: 2049/tcp
+        permanent: yes
+        state: enabled
+    - name: Enable NFS service in firewalld
+      firewalld:
+        port: 2049/udp
+        permanent: yes
+        state: enabled
+    - name: Enable NFS service in firewalld
+      firewalld:
+        port: 111/tcp
+        permanent: yes
+        state: enabled
+    - name: Relead firewalld
+      command: firewall-cmd --reload
 
+    - name: Ensure data folder is present
+      file:
+        path: /data/ftp
+        #owner: foo
+        #group: foo
+        mode: '0777'
+        state: directory
+    - name: Ensure data folder is present
+      file:
+        path: /data/nfsshare/
+        #owner: foo
+        #group: foo
+        mode: '0777'
+        state: directory
     - name: Create FTP group 
       group:
         name: ftpgroup
@@ -56,7 +88,11 @@
         #home: /data/ftp/$USER
         append: yes
         update_password: always
-
-
-        
-    - name: Create FTP user
+    - name: Add line to exportfs
+      lineinfile:
+        path: /etc/exports
+        #state: present
+        regexp: '^/data/nfsshare'
+        line: '/data/nfsshare *(rw)'
+    - name: Export share
+      command: exportfs -a
