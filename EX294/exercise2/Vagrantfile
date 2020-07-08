@@ -1,0 +1,61 @@
+require 'yaml'
+
+yaml = YAML.load_file('environment.yaml')
+defaults = yaml['defaults']
+servers = yaml['servers']
+
+if defaults['use_ansible_local']
+  provisioner = "ansible_local"
+else
+  provisioner = "ansible"
+end
+
+Vagrant.configure("2") do |config|
+
+  # Use the vagrant-hostmanager plugin
+  config.vagrant.plugins = "vagrant-hostmanager"
+  config.hostmanager.enabled = true
+  # Explicitly sync project folder to /vagrant
+  config.vm.synced_folder "./", "/vagrant"
+
+  config.vm.box = defaults['box']
+  config.vm.provider :virtualbox do |vb|
+    vb.memory = defaults['memory']
+  end
+
+  servers.each do |server|
+    config.vm.define server['name'] do |srv|
+      if server['ip'].nil?
+        srv.vm.network :private_network, type: "dhcp"
+      else
+        srv.vm.network :private_network, ip: server['ip']
+      end
+
+      # Port forwards
+      unless server['forward'].nil?
+        server['forward'].each do |forward|
+          srv.vm.network :forwarded_port, guest: forward['guest'], host: forward['host']
+        end
+      end
+
+
+      srv.vm.provider :virtualbox do |vb|
+        vb.name = server['name']
+
+        unless server['memory'].nil?
+          vb.memory = server['memory']
+        end
+      end
+
+      unless server['ansible'].nil?
+        srv.vm.provision provisioner do |ansible|
+          ansible.playbook = server['ansible']['playbook']
+          ansible.inventory_path = server['ansible']['inventory']
+          unless server['ansible']['limit'].nil?
+            ansible.limit = server['ansible']['limit']
+          end
+        end
+      end
+    end
+  end
+end
