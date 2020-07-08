@@ -8,25 +8,17 @@ Objectives:
 
 Troubleshooting:
 {code}
-==> ansible: Running provisioner: ansible_local...
-    ansible: Installing Ansible...
+ansible: Installing Ansible...
 The following SSH command responded with a non-zero exit status.
 Vagrant assumes that this means the command failed!
 
-dnf -y --enablerepo=epel install ansible
+sudo rpm -i https://dl.fedoraproject.org/pub/epel/epel-release-latest-`rpm -E %dist | sed -n 's/.*el\([0-9]\).*/\1/p'`.noarch.rpm
 
 Stdout from the command:
 
-CentOS-8 - AppStream                            2.0 kB/s | 4.3 kB     00:02
-CentOS-8 - AppStream                            1.0 MB/s | 5.8 MB     00:05
-CentOS-8 - Base                                 1.6 kB/s | 3.9 kB     00:02
-CentOS-8 - Base                                 546 kB/s | 2.2 MB     00:04
-CentOS-8 - Extras                               656  B/s | 1.5 kB     00:02
-CentOS-8 - Extras                               1.8 kB/s | 6.7 kB     00:03
-Extra Packages for Enterprise Linux Modular 8 - 0.0  B/s |   0  B     02:08
 
 
 Stderr from the command:
 
-Error: Failed to synchronize cache for repo 'epel-modular'
+        package epel-release-8-8.el8.noarch is already installed
 {code}
